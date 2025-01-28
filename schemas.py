@@ -4,7 +4,7 @@ from typing import List, Optional
 class MenuBase(BaseModel):
     name: str = Field(min_length=1)
     description: Optional[str] = None
-    price: Optional[float] = Field(gt=0)
+    price: float = Field(gt=0)
 
 class MenuCreate(MenuBase):
     pass
@@ -25,6 +25,7 @@ class OrderItemCreate(OrderItemBase):
 
 class OrderItem(OrderItemBase):
     id: int
+    menu_item: Menu
 
     class Config:
         orm_mode: True
