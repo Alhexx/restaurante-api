@@ -1,0 +1,29 @@
+from sqlalchemy import Column, Double, Integer, String, ForeignKey
+from sqlalchemy.orm import relationship
+from database import Base
+
+class Menu(Base):
+    __tablename__ = "menu"
+
+    id = Column(Integer, primary_key=True, index=True)
+    name = Column(String, nullable=False)
+    description = Column(String, nullable=True)
+    price = Column(Double, nullable=False)
+
+class Order(Base):
+    __tablename__ = "orders"
+
+    id = Column(Integer, primary_key=True, index=True)
+    status = Column(String, nullable=False)
+    items = relationship("OrderItem", back_populates="order")
+
+class OrderItem(Base):
+    __tablename__ = "order_items"
+
+    id = Column(Integer, primary_key=True, index=True)
+    order_id = Column(Integer, ForeignKey('orders.id'), nullable=False)
+    menu_item_id = Column(Integer, ForeignKey('menu.id'), nullable=False)
+    observation = Column(String, nullable=True)
+    quantity = Column(Integer, nullable=False)
+    order = relationship("Order", back_populates="items")
+    menu_item = relationship("Menu")
