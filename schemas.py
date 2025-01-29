@@ -1,6 +1,18 @@
 from pydantic import BaseModel, Field
 from typing import List, Optional
 
+class TableBase(BaseModel):
+    name: str = Field(min_length=1)
+
+class TableCreate(TableBase):
+    pass
+
+class Table(TableBase):
+    id: int
+
+    class Config:
+        orm_mode: True
+
 class MenuBase(BaseModel):
     name: str = Field(min_length=1)
     description: Optional[str] = None
@@ -32,6 +44,7 @@ class OrderItem(OrderItemBase):
 
 class OrderBase(BaseModel):
     status: str
+    table_id: int
 
 class OrderCreate(OrderBase):
     items: List[OrderItemCreate]

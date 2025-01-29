@@ -16,6 +16,19 @@ def get_db():
     finally:
         db.close()
 
+@app.post("/tables/", response_model=schemas.Table)
+def create_tables(table: schemas.TableCreate, db: Session = Depends(get_db)):
+    db_table = models.Table(name=table.name)
+    db.add(db_table)
+    db.commit()
+    db.refresh(db_table)
+    return db_table
+
+@app.get("/tables/", response_model=List[schemas.Table])
+def read_tables(db: Session = Depends(get_db)):
+    tables = db.query(models.Table).all()
+    return tables
+
 @app.post("/menus/batch", response_model=List[schemas.Menu])
 def create_menus_batch(menus: schemas.MenuCreateBatch, db: Session = Depends(get_db)):
     db_menus = []
@@ -35,7 +48,7 @@ def read_menus(db: Session = Depends(get_db)):
 @app.post("/orders/", response_model=schemas.Order)
 def create_order(order: schemas.OrderCreate, db: Session = Depends(get_db)):
     print(order)
-    db_order = models.Order(status=order.status)
+    db_order = models.Order(status=order.status, table_id=order.table_id)
     db.add(db_order)
     db.commit()
     db.refresh(db_order)
@@ -46,6 +59,13 @@ def create_order(order: schemas.OrderCreate, db: Session = Depends(get_db)):
     return db_order
 
 @app.get("/orders/", response_model=List[schemas.Order])
-def read_orders(db: Session = Depends(get_db)):
-    orders = db.query(models.Order).all()
+def read_orders(table_id: int = None, db: Session = Depends(get_db)):
+    if table_id:
+        orders = db.query(models.Order).filter(models.Order.table_id == table_id).all()
+    else:
+        orders = db.query(models.Order).all()
     return orders
+# @app.get("/orders/{id}", response_model=List[schemas.Order])
+# def read_orders(db: Session = Depends(get_db)):
+#     orders = db.query(models.Order).all()
+#     return orders
