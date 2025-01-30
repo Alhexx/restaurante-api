@@ -65,7 +65,9 @@ def read_orders(table_id: int = None, db: Session = Depends(get_db)):
     else:
         orders = db.query(models.Order).all()
     return orders
-# @app.get("/orders/{id}", response_model=List[schemas.Order])
-# def read_orders(db: Session = Depends(get_db)):
-#     orders = db.query(models.Order).all()
-#     return orders
+
+@app.delete("/order_item/{id}")
+def delete_order_item(id: int, db: Session = Depends(get_db)):
+    db.query(models.OrderItem).filter(models.OrderItem.id == id).delete()
+    db.commit()
+    return {"message": "Item deleted"}
