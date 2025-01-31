@@ -1,11 +1,14 @@
 from fastapi import FastAPI, HTTPException, Depends
 from pydantic import BaseModel, Field
-from typing import List
+from typing import Annotated, List
 import models, schemas
 from database import engine, SessionLocal
+from starlette import status
 from sqlalchemy.orm import Session
+import auth
 
 app = FastAPI()
+app.include_router(auth.router)
 
 models.Base.metadata.create_all(bind=engine)
 
@@ -16,8 +19,13 @@ def get_db():
     finally:
         db.close()
 
+user_dependency = Annotated[dict, Depends(auth.get_current_user)]
+
 @app.post("/tables/", response_model=schemas.Table)
-def create_tables(table: schemas.TableCreate, db: Session = Depends(get_db)):
+def create_tables(table: schemas.TableCreate, user: user_dependency, db: Session = Depends(get_db)):
+    if not user:
+        raise HTTPException(status_code=status, detail="nao esta autenticao")
+
     db_table = models.Table(name=table.name)
     db.add(db_table)
     db.commit()
