@@ -22,10 +22,7 @@ def get_db():
 user_dependency = Annotated[dict, Depends(auth.get_current_user)]
 
 @app.post("/tables/", response_model=schemas.Table)
-def create_tables(table: schemas.TableCreate, user: user_dependency, db: Session = Depends(get_db)):
-    if not user:
-        raise HTTPException(status_code=status, detail="nao esta autenticao")
-
+def create_tables(table: schemas.TableCreate, db: Session = Depends(get_db)):
     db_table = models.Table(name=table.name)
     db.add(db_table)
     db.commit()

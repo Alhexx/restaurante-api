@@ -19,7 +19,7 @@ SECRET_KEY = 'f592df54c5955e41f26d4eb0c3efacb694470986211bc0961e20a32d81d3f57c'
 ALGORITHM = 'HS256'
 
 bcrypt_context = CryptContext(schemes=['bcrypt'], deprecated='auto')
-oauth2_bearer = OAuth2PasswordBearer(tokenUrl='auth/token')
+oauth2_bearer = OAuth2PasswordBearer(tokenUrl='auth/login')
 
 class CreateUserRequest(BaseModel):
     username:str
@@ -47,6 +47,7 @@ async def create_user(db: db_dependency, create_user_request: CreateUserRequest)
 
 @router.post('/login/', response_model=Token)
 async def login_for_access_token(form_data: Annotated[OAuth2PasswordRequestForm, Depends()], db: db_dependency):
+    print(form_data)
     user = authenticate_user(form_data.username, form_data.password, db)
 
     if not user:
